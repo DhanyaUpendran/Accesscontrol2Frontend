@@ -5,6 +5,9 @@ const API_URL = "http://localhost:5000/api";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "" });
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchProfile();
@@ -13,18 +16,40 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem("token");
+      const { data } = await axios.get(`${API_URL}/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
 
-      const { data } = await axios.get(
-        `${API_URL}/user/profile`,
+      setProfile(data);
+      setForm({ name: data.name, email: data.email });
+    } catch (err) {
+      console.error("Failed to fetch profile", err);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      setError("");
+      const token = localStorage.getItem("token");
+
+      await axios.put(
+        `${API_URL}/user/users/${profile._id}`,
+        form,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }
       );
 
-      setProfile(data);
-    } catch (error) {
-      console.error("Failed to fetch profile", error);
+      setEditMode(false);
+      fetchProfile();
+    } catch (err) {
+      if (err.response?.status === 403 || err.response?.status === 401) {
+        setError("Permission not allowed");
+      } else {
+        setError("Update failed");
+      }
     }
   };
 
@@ -35,18 +60,36 @@ const Profile = () => {
       <h1 className="profile-title">My Profile</h1>
 
       <div className="profile-card">
-        <p>
-          <strong>Name:</strong> {profile.name}
-        </p>
-        <p>
-          <strong>Email:</strong> {profile.email}
-        </p>
-        <p>
-          <strong>Team:</strong> {profile.team?.name || "None"}
-        </p>
+        {editMode ? (
+          <>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+
+            <button onClick={handleUpdate}>Save</button>
+            <button onClick={() => setEditMode(false)}>Cancel</button>
+          </>
+        ) : (
+          <>
+            <p><strong>Name:</strong> {profile.name}</p>
+            <p><strong>Email:</strong> {profile.email}</p>
+            <p><strong>Team:</strong> {profile.team?.name || "None"}</p>
+
+            {/* Visible to ALL users */}
+            <button onClick={() => setEditMode(true)}>Edit Profile</button>
+          </>
+        )}
+
+        {error && <p className="error-text">{error}</p>}
       </div>
 
-      {/* Simple component styles */}
       <style>{`
         .profile-container {
           padding: 20px;
@@ -54,30 +97,31 @@ const Profile = () => {
           min-height: 100vh;
         }
 
-        .profile-title {
-          font-size: 24px;
-          margin-bottom: 16px;
-          color: #1f2937;
-        }
-
         .profile-card {
-          background: #ffffff;
+          background: white;
           max-width: 400px;
           padding: 16px;
           border-radius: 6px;
           box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-          font-size: 14px;
-          color: #374151;
         }
 
-        .profile-card p {
+        input {
+          display: block;
+          width: 100%;
           margin-bottom: 8px;
+          padding: 6px;
         }
 
-        .status-text {
-          padding: 20px;
-          font-size: 14px;
-          color: #374151;
+        button {
+          margin-right: 8px;
+          padding: 6px 12px;
+          cursor: pointer;
+        }
+
+        .error-text {
+          margin-top: 10px;
+          color: red;
+          font-size: 13px;
         }
       `}</style>
     </div>
