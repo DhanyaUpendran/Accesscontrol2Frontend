@@ -1,5 +1,6 @@
 export const PERMISSIONS = {
   VIEW_PROFILE: "view_profile",
+ MANAGE_PROFILE: "manage_profile",
   VIEW_USERS: "view_users",
   MANAGE_USERS: "manage_users",
   MANAGE_ROLES: "manage_roles",
