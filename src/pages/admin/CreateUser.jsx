@@ -47,7 +47,7 @@ const CreateUser = () => {
     try {
       const { data } = await axios.get(`${API_URL}/api/admin/teams`, {
         headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
+        // withCredentials: true,
       });
       setTeams(data);
     } catch (err) {
