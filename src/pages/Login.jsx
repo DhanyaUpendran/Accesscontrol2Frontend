@@ -17,8 +17,7 @@ const Login = () => {
     try {
       const { data } = await axios.post(
         `${API_URL}/api/auth/login`,
-        { email, password },
-        { withCredentials: true }
+        { email, password }
       );
 
       localStorage.setItem("token", data.token);

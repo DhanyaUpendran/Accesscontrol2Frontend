@@ -19,7 +19,7 @@ const MyTeamUsers = () => {
           `${API_URL}/api/user/team-members`,
           {
             headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true,
+            // withCredentials: true,
           }
         );
 

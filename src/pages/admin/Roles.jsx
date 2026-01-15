@@ -68,7 +68,7 @@ const Roles = () => {
         { permissions: perms },
         {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
+          // withCredentials: true,
         }
       );
 

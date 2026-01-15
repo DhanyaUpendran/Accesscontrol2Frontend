@@ -18,7 +18,7 @@ const Profile = () => {
       const token = localStorage.getItem("token");
       const { data } = await axios.get(`${API_URL}/api/user/profile`, {
         headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
+        // withCredentials: true,
       });
 
       setProfile(data);

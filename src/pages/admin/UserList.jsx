@@ -21,7 +21,7 @@ const UsersList = () => {
         `${API_URL}/api/user/userdetails`,
         {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
+          // withCredentials: true,
         }
       );
 

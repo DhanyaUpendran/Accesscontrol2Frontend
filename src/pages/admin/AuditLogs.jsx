@@ -21,7 +21,7 @@ const AuditLogs = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        withCredentials: true,
+        // withCredentials: true,
       });
 
       setLogs(data);

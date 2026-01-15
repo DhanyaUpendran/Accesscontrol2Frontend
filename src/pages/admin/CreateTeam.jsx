@@ -20,7 +20,7 @@ const CreateTeam = () => {
         { name },
         {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
+          // withCredentials: true,
         }
       );
       alert("Team created");
