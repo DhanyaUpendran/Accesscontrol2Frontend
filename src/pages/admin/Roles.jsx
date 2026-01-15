@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { PERMISSIONS } from "../../../../../server/src/utils/constants.js";
+import { PERMISSIONS } from "../../utils/permission";
+
+
 import { AuthContext } from "../../context/AuthContext.jsx";
 import PermissionWrapper from "../../components/PermissionWrapper.jsx";
 
