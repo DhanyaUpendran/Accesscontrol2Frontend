@@ -32,7 +32,7 @@ const CreateUser = () => {
 
   const fetchRoles = async () => {
     try {
-      const { data } = await axios.get(`${API_URL}/admin/roles`, {
+      const { data } = await axios.get(`${API_URL}/api/admin/roles`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
@@ -45,7 +45,7 @@ const CreateUser = () => {
 
   const fetchTeams = async () => {
     try {
-      const { data } = await axios.get(`${API_URL}/admin/teams`, {
+      const { data } = await axios.get(`${API_URL}/api/admin/teams`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
@@ -72,7 +72,7 @@ const CreateUser = () => {
     try {
       // Create user with team
       const { data: newUser } = await axios.post(
-        `${API_URL}/admin/users`,
+        `${API_URL}/api/admin/users`,
         {
           name,
           email,

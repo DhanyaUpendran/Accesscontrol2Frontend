@@ -16,7 +16,7 @@ const CreateTeam = () => {
     e.preventDefault();
     try {
       await axios.post(
-        `${API_URL}/admin/teams/create`,
+        `${API_URL}/api/admin/teams/create`,
         { name },
         {
           headers: { Authorization: `Bearer ${token}` },

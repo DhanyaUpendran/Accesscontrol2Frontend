@@ -18,7 +18,7 @@ const UsersList = () => {
       const token = localStorage.getItem("token");
 
       const { data } = await axios.get(
-        `${API_URL}/user/userdetails`,
+        `${API_URL}/api/user/userdetails`,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,

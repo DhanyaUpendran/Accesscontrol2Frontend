@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
    const fetchProfile = async () => {
   try {
     const { data } = await axios.get(
-      `${API_URL}/user/profile`,
+      `${API_URL}/api/user/profile`,
       {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,

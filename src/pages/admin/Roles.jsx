@@ -39,7 +39,7 @@ const Roles = () => {
 
     try {
       await axios.post(
-        `${API_URL}/admin/roles`,
+        `${API_URL}/api/admin/roles`,
         { name: newRoleName },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -64,7 +64,7 @@ const Roles = () => {
 
     try {
       await axios.put(
-        `${API_URL}/admin/roles/${roleId}/permissions`,
+        `${API_URL}/api/admin/roles/${roleId}/permissions`,
         { permissions: perms },
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -16,7 +16,7 @@ const MyTeamUsers = () => {
     const fetchTeamUsers = async () => {
       try {
         const { data } = await axios.get(
-          `${API_URL}/user/team-members`,
+          `${API_URL}/api/user/team-members`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
@@ -39,7 +39,7 @@ const MyTeamUsers = () => {
 
     try {
       await axios.put(
-        `${API_URL}/user/users/${userId}/remove-team`,
+        `${API_URL}/api/user/users/${userId}/remove-team`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

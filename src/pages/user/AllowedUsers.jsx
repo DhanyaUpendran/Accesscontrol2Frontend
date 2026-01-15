@@ -12,7 +12,7 @@ const Users = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await fetch(`${API_URL}/userdetails`, {
+        const res = await fetch(`${API_URL}/api/user/userdetails`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

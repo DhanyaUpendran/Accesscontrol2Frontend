@@ -17,7 +17,7 @@ const AuditLogs = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const { data } = await axios.get(`${API_URL}/admin/audit-logs`, {
+      const { data } = await axios.get(`${API_URL}/api/admin/audit-logs`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
