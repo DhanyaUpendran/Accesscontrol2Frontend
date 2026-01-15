@@ -4,7 +4,7 @@ import axios from "axios";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import PermissionWrapper from "../../components/PermissionWrapper.jsx";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL =` ${import.meta.env.VITE_API_URL}`;
 
 const CreateUser = () => {
   const { permissions } = useContext(AuthContext);

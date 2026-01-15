@@ -4,7 +4,7 @@ import { PERMISSIONS } from "../../../../../server/src/utils/constants.js";
 import { AuthContext } from "../../context/AuthContext.jsx";
 import PermissionWrapper from "../../components/PermissionWrapper.jsx";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL =` ${import.meta.env.VITE_API_URL}`;
 
 const Roles = () => {
   const { permissions } = useContext(AuthContext);
