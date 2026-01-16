@@ -82,7 +82,7 @@ const CreateUser = () => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
+          // withCredentials: true,
         }
       );
 
