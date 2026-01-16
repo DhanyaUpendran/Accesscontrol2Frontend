@@ -43,7 +43,7 @@ const MyTeamUsers = () => {
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
+          // withCredentials: true,
         }
       );
 

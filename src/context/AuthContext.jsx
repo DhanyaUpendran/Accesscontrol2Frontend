@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
       `${API_URL}/api/user/profile`,
       {
         headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
+        // withCredentials: true,
       }
     );
 
