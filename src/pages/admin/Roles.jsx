@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { PERMISSIONS } from "../../utils/permission";
-
-
 import { AuthContext } from "../../context/AuthContext.jsx";
 import PermissionWrapper from "../../components/PermissionWrapper.jsx";
 
-const API_URL =` ${import.meta.env.VITE_API_URL}`;
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Roles = () => {
   const { permissions } = useContext(AuthContext);
@@ -16,6 +14,10 @@ const Roles = () => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [editingRoleId, setEditingRoleId] = useState(null);
 
+  // NEW
+  const [scopeMap, setScopeMap] = useState({});
+  const [timeMap, setTimeMap] = useState({});
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -23,61 +25,23 @@ const Roles = () => {
   }, []);
 
   const fetchRoles = async () => {
-    try {
-      const { data } = await axios.get(`${API_URL}/api/admin/roles`, {
-        headers: { Authorization: `Bearer ${token}` },
-        // withCredentials: true,
-      });
-      setRoles(data);
-    } catch (err) {
-      console.error("Failed to fetch roles", err);
-    }
+    const { data } = await axios.get(`${API_URL}/api/admin/roles`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setRoles(data);
   };
 
   const handleCreateRole = async () => {
-    if (!newRoleName) return alert("Role name is required");
+    if (!newRoleName) return alert("Role name required");
 
-    try {
-      await axios.post(
-        `${API_URL}/api/admin/roles`,
-        { name: newRoleName },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          // withCredentials: true,
-        }
-      );
+    await axios.post(
+      `${API_URL}/api/admin/roles`,
+      { name: newRoleName },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      setNewRoleName("");
-      fetchRoles();
-    } catch {
-      alert("Failed to create role");
-    }
-  };
-
-  const handleAssignPermissions = async (roleId) => {
-    if (!selectedPermissions.length) return alert("Select permissions");
-
-    const perms = selectedPermissions.map((p) => ({
-      permissionKey: p,
-      scope: "global",
-    }));
-
-    try {
-      await axios.put(
-        `${API_URL}/api/admin/roles/${roleId}/permissions`,
-        { permissions: perms },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          // withCredentials: true,
-        }
-      );
-
-      setEditingRoleId(null);
-      setSelectedPermissions([]);
-      fetchRoles();
-    } catch {
-      alert("Failed to assign permissions");
-    }
+    setNewRoleName("");
+    fetchRoles();
   };
 
   const togglePermission = (key) => {
@@ -88,13 +52,36 @@ const Roles = () => {
     );
   };
 
+  const handleAssignPermissions = async (roleId) => {
+    if (!selectedPermissions.length) return alert("Select permissions");
+
+    const perms = selectedPermissions.map((p) => ({
+      permissionKey: p,
+      scope: scopeMap[p] || "self",
+      startsAt: timeMap[p]?.startsAt || null,
+      endsAt: timeMap[p]?.endsAt || null,
+    }));
+
+    await axios.put(
+      `${API_URL}/api/admin/roles/${roleId}/permissions`,
+      { permissions: perms },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setEditingRoleId(null);
+    setSelectedPermissions([]);
+    setScopeMap({});
+    setTimeMap({});
+    fetchRoles();
+  };
+
   return (
     <PermissionWrapper permissionKey="manage_roles" permissions={permissions}>
       <div className="roles-container">
-        <h1 className="roles-title">Roles</h1>
+        <h1>Roles</h1>
 
+        {/* CREATE ROLE */}
         <div className="create-role">
-          <h2>Create New Role</h2>
           <input
             placeholder="Role name"
             value={newRoleName}
@@ -103,151 +90,122 @@ const Roles = () => {
           <button onClick={handleCreateRole}>Create Role</button>
         </div>
 
-        <div className="roles-list">
-          <h2>Existing Roles</h2>
+        {/* ROLE LIST */}
+        {roles.map((role) => (
+          <div key={role._id} className="role-card">
+            <div className="role-header">
+              <strong>{role.name}</strong>
+              <button onClick={() => setEditingRoleId(role._id)}>
+                Edit Permissions
+              </button>
+            </div>
 
-          {roles.map((role) => (
-            <div key={role._id} className="role-card">
-              <div className="role-header">
-                <strong>{role.name}</strong>
-                <button onClick={() => setEditingRoleId(role._id)}>
-                  Edit Permissions
-                </button>
-              </div>
+            {/* EDIT PERMISSIONS */}
+            {editingRoleId === role._id && (
+              <div className="permissions-box">
+                {Object.values(PERMISSIONS).map((p) => {
+                  const selected = selectedPermissions.includes(p);
 
-              {editingRoleId === role._id && (
-                <div className="permissions-box">
-                  {Object.values(PERMISSIONS).map((p) => (
-                    <label key={p}>
+                  return (
+                    <div key={p} className="perm-row">
                       <input
                         type="checkbox"
-                        checked={selectedPermissions.includes(p)}
+                        checked={selected}
                         onChange={() => togglePermission(p)}
                       />
-                      {p}
-                    </label>
-                  ))}
-                  <button
-                    className="save-btn"
-                    onClick={() => handleAssignPermissions(role._id)}
-                  >
-                    Save Permissions
-                  </button>
-                </div>
-              )}
 
-              <div className="current-perms">
-                <strong>Current Permissions:</strong>{" "}
-                {role.permissions?.map((p) => p.permissionKey).join(", ") ||
-                  "None"}
+                      <span>{p}</span>
+
+                      {selected && (
+                        <>
+                          <select
+                            value={scopeMap[p] || "self"}
+                            onChange={(e) =>
+                              setScopeMap({
+                                ...scopeMap,
+                                [p]: e.target.value,
+                              })
+                            }
+                          >
+                            <option value="self">Self</option>
+                            <option value="team">Team</option>
+                            <option value="global">Global</option>
+                          </select>
+
+                          <input
+                            type="datetime-local"
+                            onChange={(e) =>
+                              setTimeMap({
+                                ...timeMap,
+                                [p]: {
+                                  ...timeMap[p],
+                                  startsAt: e.target.value,
+                                },
+                              })
+                            }
+                          />
+
+                          <input
+                            type="datetime-local"
+                            onChange={(e) =>
+                              setTimeMap({
+                                ...timeMap,
+                                [p]: {
+                                  ...timeMap[p],
+                                  endsAt: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+
+                <button onClick={() => handleAssignPermissions(role._id)}>
+                  Save
+                </button>
               </div>
+            )}
+
+            {/* CURRENT PERMISSIONS */}
+            <div className="current-perms">
+              <strong>Current:</strong>
+              {role.permissions?.length ? (
+                role.permissions.map((p) => {
+                  const expired =
+                    p.endsAt && new Date(p.endsAt) < new Date();
+
+                  return (
+                    <div key={p.permissionKey}>
+                      <span
+                        style={{
+                          color: expired ? "red" : "green",
+                          textDecoration: expired ? "line-through" : "none",
+                        }}
+                      >
+                        {p.permissionKey} ({p.scope})
+                      </span>
+                      {expired && " ⛔ expired"}
+                    </div>
+                  );
+                })
+              ) : (
+                <span> None</span>
+              )}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
-      {/* Simple component styles */}
       <style>{`
-        .roles-container {
-          padding: 20px;
-          background: #f9fafb;
-          min-height: 100vh;
-          flex-direction: column;
-          align-items:center;
-        }
-
-        .roles-title {
-          font-size: 24px;
-          margin-bottom: 16px;
-          color: #1f2937;
-        }
-
-        .create-role {
-          background: #ffffff;
-          padding: 16px;
-          max-width: 400px;
-          border-radius: 6px;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-          margin-bottom: 24px;
-        }
-
-        .create-role input {
-          width: 100%;
-          padding: 10px;
-          margin: 8px 0;
-          border: 1px solid #d1d5db;
-          border-radius: 4px;
-        }
-
-        .create-role button {
-          padding: 8px 12px;
-          background: #2563eb;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .roles-list h2 {
-          margin-bottom: 12px;
-        }
-
-        .role-card {
-          background: #ffffff;
-          border-radius: 6px;
-          padding: 16px;
-          margin-bottom: 12px;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-        }
-
-        .role-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .role-header button {
-          background: #374151;
-          color: white;
-          border: none;
-          padding: 6px 10px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .permissions-box {
-          margin-top: 12px;
-          padding: 12px;
-          border: 1px solid #e5e7eb;
-          border-radius: 4px;
-          background: #f9fafb;
-        }
-
-        .permissions-box label {
-          display: block;
-          font-size: 14px;
-          margin-bottom: 4px;
-        }
-
-        .permissions-box input {
-          margin-right: 6px;
-        }
-
-        .save-btn {
-          margin-top: 8px;
-          background: #16a34a;
-          color: white;
-          border: none;
-          padding: 8px 12px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .current-perms {
-          margin-top: 8px;
-          font-size: 14px;
-          color: #374151;
-        }
+        .roles-container { padding:20px }
+        .create-role input { margin-right:6px }
+        .role-card { background:#fff; padding:12px; margin-bottom:10px }
+        .role-header { display:flex; justify-content:space-between }
+        .permissions-box { margin-top:10px }
+        .perm-row { display:flex; gap:8px; margin-bottom:6px }
       `}</style>
     </PermissionWrapper>
   );
