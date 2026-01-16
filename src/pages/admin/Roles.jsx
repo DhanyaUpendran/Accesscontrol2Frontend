@@ -24,9 +24,9 @@ const Roles = () => {
 
   const fetchRoles = async () => {
     try {
-      const { data } = await axios.get(`${API_URL}/admin/roles`, {
+      const { data } = await axios.get(`${API_URL}/api/admin/roles`, {
         headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
+        // withCredentials: true,
       });
       setRoles(data);
     } catch (err) {
@@ -43,7 +43,7 @@ const Roles = () => {
         { name: newRoleName },
         {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
+          // withCredentials: true,
         }
       );
 
